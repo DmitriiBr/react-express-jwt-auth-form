@@ -1,20 +1,31 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import { routes } from './routes';
+import { AuthContext } from './context/AuthContext';
+import { RouterPaths, routes } from './routes';
 
 function App() {
+  const { isAuth } = useContext(AuthContext);
+  let dependedOnAuthRoutes = routes;
+
+  if (isAuth) {
+    dependedOnAuthRoutes = routes.filter(
+      (route) => route.path !== RouterPaths.LOGIN
+    );
+  }
   return (
     <div className="App">
       <Navbar />
       <Routes>
-        {routes.map((route) => (
-          <Route
-            key={route.path}
-            path={route.path}
-            element={route.element}
-          />
-        ))}
+        {dependedOnAuthRoutes.map((route) => {
+          return (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={route.element}
+            />
+          );
+        })}
       </Routes>
     </div>
   );
