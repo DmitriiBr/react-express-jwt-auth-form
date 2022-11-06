@@ -49,6 +49,26 @@ class authController {
       });
     }
   }
+  public async login(req: Request, res: Response) {
+    try {
+      const { email, username, password }: IUSER = req.body;
+      const user = await pool.query(queryCandidates, [username, email]);
+      if (!user.rows.length) {
+        return res.status(400).json({
+          message: 'User with this username or email already exists',
+        });
+      }
+      const validPassword = bcrypt.compareSync(password, user.rows[0].password);
+      if (!validPassword) {
+        return res.status(400).json({
+          message: 'Password is not correct',
+        });
+      }
+    } catch (e: unknown) {
+      console.log(e);
+      res.status(400).json({ message: 'Something went wrong' });
+    }
+  }
 }
 
 export default new authController();
